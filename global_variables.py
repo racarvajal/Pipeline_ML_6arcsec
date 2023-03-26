@@ -46,10 +46,17 @@ AGN_gal_model      = 'classification_AGN_galaxy_mar_16_2023'
 radio_model        = 'classification_LOFAR_detect_mar_17_2023'
 full_z_model       = 'regression_z_mar_18_2023'
 high_z_model       = 'regression_high_z_mar_19_2023'
+
+# Models for galaxies (test)
+radio_galaxies_model   = 'classification_LOFAR_detect_galaxies_mar_25_2023'
+z_radio_galaxies_model = 'regression_z_radio_galaxies_mar_26_2023'
+
 # Calibrated models
 cal_str_model      = 'cal_' + star_model    + '.joblib'
 cal_AGN_gal_model  = 'cal_' + AGN_gal_model + '.joblib'
 cal_radio_model    = 'cal_' + radio_model   + '.joblib'
+
+cal_radio_gals_model = 'cal_' + radio_galaxies_model + '.joblib'
 
 # Seeds
 seed               = 42
@@ -61,16 +68,22 @@ beta_F             = 1.1  # beta positive real value
 naive_star_thresh  = 0.5
 naive_AGN_thresh   = 0.5
 naive_radio_thresh = 0.5
+
+naive_radio_gals_thresh = 0.5
 # Values obtained with train, test, calibration, and validation sub-sets
 # PR-optimised models (with train+test sub-set)
 star_thresh        = 0.1873511777 # old value
 AGN_thresh         = 0.5000115951
 radio_thresh       = 0.9911368526
 
+radio_gals_thresh  = 0.5
+
 # Calibrated and PR-optimised models (with calibration sub-set)
 cal_str_thresh     = 0.6007345636412931 # old value
 cal_AGN_thresh     = 0.34895396724527294
 cal_radio_thresh   = 0.24489520601404396
+
+cal_radio_gals_thresh = 0.5
 # High redshift limit
 high_z_limit       = 2.0  # 3.6
 
