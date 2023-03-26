@@ -76,14 +76,14 @@ star_thresh        = 0.1873511777 # old value
 AGN_thresh         = 0.5000115951
 radio_thresh       = 0.9911368526
 
-radio_gals_thresh  = 0.5
+radio_gals_thresh  = 0.5910151612
 
 # Calibrated and PR-optimised models (with calibration sub-set)
 cal_str_thresh     = 0.6007345636412931 # old value
 cal_AGN_thresh     = 0.34895396724527294
 cal_radio_thresh   = 0.24489520601404396
 
-cal_radio_gals_thresh = 0.5
+cal_radio_gals_thresh = 0.19957242325544386
 # High redshift limit
 high_z_limit       = 2.0  # 3.6
 
