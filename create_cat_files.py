@@ -102,13 +102,13 @@ file_name_clean_S82_err    = gv.fits_S82.replace('.fits', '_err_5sigma_imp.h5') 
 file_name_clean_COSMOS_err = gv.fits_COSMOS.replace('.fits', '_err_5sigma_imp.h5')      # h5 file
 
 run_HETDEX_flag = False
-run_S82_flag    = True
+run_S82_flag    = False
 run_COSMOS_flag = False
 
 run_S82_full    = True  # True for use all S82 sources. False for using Ananna+17 sample
 
 save_HETDEX_flag = False
-save_S82_flag    = True
+save_S82_flag    = False
 save_COSMOS_flag = False
 
 all_vega_cols  = ['W1mproPM', 'W2mproPM', 'W1mag', 'W2mag', 'W3mag', 'W4mag', 'Jmag', 'Hmag', 'Kmag',
@@ -214,6 +214,11 @@ if run_HETDEX_flag:
     imputed_HETDEX_df['Sint_LOFAR_AB'] = HETDEX_initial_tab['Sint_LOFAR_AB']
     imputed_HETDEX_df['Speak_LOFAR']   = HETDEX_initial_tab['Speak_LOFAR']
     imputed_HETDEX_df['rms_LOFAR']     = HETDEX_initial_tab['rms_LOFAR']
+    
+    # Copy radio measurements without imputation
+    imputed_HETDEX_df['Sint_LOFAR_non_imp']    = HETDEX_initial_tab['Sint_LOFAR'].copy()
+    imputed_HETDEX_df['Sint_LOFAR_AB_non_imp'] = HETDEX_initial_tab['Sint_LOFAR_AB'].copy()
+    imputed_HETDEX_df['Speak_LOFAR_non_imp']   = HETDEX_initial_tab['Speak_LOFAR'].copy()
 
     # Select, from MQC, sources that have been classified 
     # as host-dominated NLAGN, AGN, or QSO candidates.
@@ -359,6 +364,10 @@ if run_S82_flag:
     imputed_S82_df['Fint_VLAS82']    = S82_initial_tab['Fint_VLAS82']
     imputed_S82_df['Fint_VLAS82_AB'] = S82_initial_tab['Fint_VLAS82_AB']
     imputed_S82_df['rms_VLAS82']     = S82_initial_tab['rms_VLAS82']
+    
+    # Copy radio measurements without imputation
+    imputed_S82_df['Fint_VLAS82_non_imp']    = S82_initial_tab['Fint_VLAS82'].copy()
+    imputed_S82_df['Fint_VLAS82_AB_non_imp'] = S82_initial_tab['Fint_VLAS82_AB'].copy()
 
     # Select, from MQC, sources that have been classified 
     # as host-dominated NLAGN, AGN, or QSO candidates.
