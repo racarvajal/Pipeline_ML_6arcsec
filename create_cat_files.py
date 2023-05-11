@@ -102,13 +102,13 @@ file_name_clean_S82_err    = gv.fits_S82.replace('.fits', '_err_5sigma_imp.h5') 
 file_name_clean_COSMOS_err = gv.fits_COSMOS.replace('.fits', '_err_5sigma_imp.h5')      # h5 file
 
 run_HETDEX_flag = False
-run_S82_flag    = False
+run_S82_flag    = True
 run_COSMOS_flag = False
 
-run_S82_full    = False  # True for use all S82 sources. False for using Ananna+17 sample
+run_S82_full    = True  # True for use all S82 sources. False for using Ananna+17 sample
 
 save_HETDEX_flag = False
-save_S82_flag    = False
+save_S82_flag    = True
 save_COSMOS_flag = False
 
 all_vega_cols  = ['W1mproPM', 'W2mproPM', 'W1mag', 'W2mag', 'W3mag', 'W4mag', 'Jmag', 'Hmag', 'Kmag',
@@ -148,6 +148,14 @@ if run_HETDEX_flag:
 
     print('Fixing dtypes')
     HETDEX_initial_tab     = fix_dtypes(HETDEX_initial_tab)
+    try:
+        HETDEX_initial_tab['Speak_LOFAR'] = HETDEX_initial_tab['Speak_LOFAR'].filled(np.nan)
+    except:
+        pass
+    try:
+        HETDEX_initial_tab['rms_LOFAR'] = HETDEX_initial_tab['rms_LOFAR'].filled(np.nan)
+    except:
+        pass
 
     id_cols = ['objID', 'RA_ICRS', 'DE_ICRS', 'Name', 'RA_MILLI', 
                 'DEC_MILLI', 'TYPE', 'Z', 'zsp', 'spCl']
@@ -204,6 +212,8 @@ if run_HETDEX_flag:
     # Add radio measurements to final table
     imputed_HETDEX_df['Sint_LOFAR']    = HETDEX_initial_tab['Sint_LOFAR']
     imputed_HETDEX_df['Sint_LOFAR_AB'] = HETDEX_initial_tab['Sint_LOFAR_AB']
+    imputed_HETDEX_df['Speak_LOFAR']   = HETDEX_initial_tab['Speak_LOFAR']
+    imputed_HETDEX_df['rms_LOFAR']     = HETDEX_initial_tab['rms_LOFAR']
 
     # Select, from MQC, sources that have been classified 
     # as host-dominated NLAGN, AGN, or QSO candidates.
@@ -282,13 +292,17 @@ if run_S82_flag:
 
     print('Fixing dtypes')
     S82_initial_tab     = fix_dtypes(S82_initial_tab)
+    try:
+        S82_initial_tab['rms_VLAS82']   = S82_initial_tab['rms_VLAS82'].filled(np.nan)
+    except:
+        pass
 
     if run_S82_full:
         id_cols = ['objID', 'RA_ICRS', 'DE_ICRS', 'Name', 'RA_MILLI', 
-                    'DEC_MILLI', 'TYPE', 'Z', 'zsp', 'spCl'] # zsp for Annana+17
+                   'DEC_MILLI', 'TYPE', 'Z', 'zsp', 'spCl'] # zsp for Annana+17
     if not run_S82_full:
         id_cols = ['objID', 'RA_ICRS', 'DE_ICRS', 'Name', 'RA_MILLI', 
-                'DEC_MILLI', 'TYPE', 'Z', 'zsp'] # zsp for Annana+17
+                   'DEC_MILLI', 'TYPE', 'Z', 'zsp'] # zsp for Annana+17
     clean_cat_S82_df = S82_initial_tab[id_cols].to_pandas()
 
     zero_point_star_equiv  = u.zero_point_flux(3631.1 * u.Jy)  # zero point (AB) to Jansky
@@ -344,6 +358,7 @@ if run_S82_flag:
     # Add radio measurements to final table
     imputed_S82_df['Fint_VLAS82']    = S82_initial_tab['Fint_VLAS82']
     imputed_S82_df['Fint_VLAS82_AB'] = S82_initial_tab['Fint_VLAS82_AB']
+    imputed_S82_df['rms_VLAS82']     = S82_initial_tab['rms_VLAS82']
 
     # Select, from MQC, sources that have been classified 
     # as host-dominated NLAGN, AGN, or QSO candidates.
