@@ -90,10 +90,18 @@ def outlier_frac(z_true, z_pred, **kwargs):
 ##########################################
 # Obtain classification metrics from confusion matrices
 def conf_mat_func(true_class_arr, predicted_class_arr):
-    cm = np.array([[np.sum(np.array(true_class_arr == 0) & np.array(predicted_class_arr == 0)),\
-                    np.sum(np.array(true_class_arr == 0) & np.array(predicted_class_arr == 1))],\
-                   [np.sum(np.array(true_class_arr == 1) & np.array(predicted_class_arr == 0)),\
+    cm = np.array([[np.sum(np.array(true_class_arr == 0) & np.array(predicted_class_arr == 0)),
+                    np.sum(np.array(true_class_arr == 0) & np.array(predicted_class_arr == 1))],
+                   [np.sum(np.array(true_class_arr == 1) & np.array(predicted_class_arr == 0)),
                     np.sum(np.array(true_class_arr == 1) & np.array(predicted_class_arr == 1))]])
+    return cm
+
+def conf_mat_random(true_class_arr):
+    class_prob = np.sum(np.array(true_class_arr == 1)) / np.shape(true_class_arr)[0]
+    cm = np.array([[(1 - class_prob) * np.sum(np.array(true_class_arr == 0)),
+                    class_prob * np.sum(np.array(true_class_arr == 0))],
+                   [(1 - class_prob) * np.sum(np.array(true_class_arr == 1)),
+                    class_prob * np.sum(np.array(true_class_arr == 1))]])
     return cm
 
 def flatten_CM(cm_array, **kwargs):
