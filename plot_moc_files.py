@@ -16,11 +16,12 @@ import global_variables as gv
 import global_functions as gf
 
 mpl.rcdefaults()
+plt.rcParams['text.usetex'] = True
 
 save_flag   = False
 show_flag   = False
 
-used_area   = 'HETDEX'  # 'HETDEX', 'S82', 'COSMOS'
+used_area   = 'S82'  # 'HETDEX', 'S82', 'COSMOS'
 
 file_HETDEX = 'CDS-J-A+A-622-A1-LoTSSDR1_MOC.fits'
 file_S82    = 'CDS-J-AJ-142-3-VLA_STRIPE82_MOC.fits'
@@ -49,7 +50,7 @@ field_fov    = field_fovs[used_area]
 field_fsize  = field_fsizes[used_area]
 
 moc = MOC.load(gv.moc_path + file_name, 'fits')
-moc = moc.degrade_to_order(9)
+moc = moc.degrade_to_order(8)
 
 fig = plt.figure(111, figsize=field_fsize)
 with World2ScreenMPL(fig, 
@@ -61,7 +62,7 @@ with World2ScreenMPL(fig,
     ax = fig.add_subplot(1, 1, 1, projection=wcs)
     # Call fill with a matplotlib ax and the `~astropy.wcs.WCS` wcs object.
     moc.fill(ax=ax, wcs=wcs, alpha=1.0, fill=True, color=plt.get_cmap('cet_gouldian')(0.5))
-    moc.border(ax=ax, wcs=wcs, alpha=1.0, color='k', lw=3.0)
+    moc.border(ax=ax, wcs=wcs, alpha=1.0, color='k', lw=2.5)
 plt.title(used_area, size=12)
 plt.grid(color='k', linestyle='dashed', alpha=0.5)
 ax.tick_params(which='major', direction='in')
