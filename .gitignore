@@ -225,6 +225,7 @@ moc_files/*.json
 # Catalogues of predicted sources
 pred_rAGN/*.csv
 pred_rAGN/*.h5
+pred_rAGN/*.parquet
 !pred_rAGN/README.md
 
 # Temporary notebooks
