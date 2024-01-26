@@ -28,7 +28,7 @@ mpl.rcdefaults()
 plt.rcParams['text.usetex'] = True
 
 # temporal path for mqc data (mac)
-mqc_version = '7_4c' # '8', '7_4c', etc.
+mqc_version = '7_4d' # '8', '7_4d', '7_4c', etc.
 tmp_path  = '/Users/rcarvajal/Documents/Astro/Science/Code/Catalogs/'
 file_name = f'milliquas_v{mqc_version}.fits'
 
