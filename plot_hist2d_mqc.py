@@ -41,7 +41,7 @@ plt.rcParams['path.effects'] = pe2
 
 
 # temporal path for mqc data (mac)
-mqc_version = '7_4d' # '8', '7_4d', '7_4c', etc.
+mqc_version = '7_4d' # '8', '7_4d', '7_4c', '7_6', '7_7', '7_8d', etc. '7_4d' used
 tmp_path  = '/Users/rcarvajal/Documents/Astro/Science/Code/Catalogs/'
 file_name = f'milliquas_v{mqc_version}.fits'
 
@@ -68,6 +68,6 @@ sp.set_xlabel(r'$\mathrm{Right ~ Ascension} ~ (\mathrm{J}2000)$')
 sp.set_ylabel(r'$\mathrm{Declination} ~ (\mathrm{J}2000)$')
 sp.ax.tick_params(axis='both', which='major', labelsize=30)
 # plt.tight_layout()
-# plt.savefig(gv.plots_path + f'MQC_v{mqc_version}_source_density_map.pdf', bbox_inches='tight')
+# plt.savefig(gv.plots_path + f'MQC_v{mqc_version}_source_density_map.pdf', bbox_inches='tight')
 plt.show()
  
