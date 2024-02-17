@@ -55,16 +55,19 @@ ax_props = {'axes.linewidth':3.5, 'axes.labelsize':20}
 fig  = plt.figure(figsize=(9,5), constrained_layout=True)
 ax1  = fig.add_subplot(111)
 sp = skyproj.HammerSkyproj(ax=ax1, rcparams=ax_props, lon_0=0)
+# sp = skyproj.McBrydeSkyproj(ax=ax1, rcparams=ax_props, lon_0=0)
 
 norm_sources  = ImageNormalize(stretch=PowerStretch(0.30))
 sp.draw_hpxbin(data_ra, data_dec, cmap='cet_bmy', nside=128, xsize=400)
-sp.draw_colorbar(pad=0.05,
-                label=r'$\mathrm{Number ~ of ~ sources ~ per ~ bin}$',
+# sp.draw_colorbar(pad=0.05,
+#                 label=r'$\mathrm{Number ~ of ~ sources ~ per ~ bin}$',
+#                 fontsize=16, fraction=0.025)
+sp.draw_colorbar(pad=0.01, label=r'$\mathrm{Number ~ of ~ sources ~ per ~ bin}$',
                 fontsize=16, fraction=0.025)
-sp.set_xlabel(r'$\mathrm{Right ~ Ascension}$')
-sp.set_ylabel(r'$\mathrm{Declination}$')
+sp.set_xlabel(r'$\mathrm{Right ~ Ascension} ~ (\mathrm{J}2000)$')
+sp.set_ylabel(r'$\mathrm{Declination} ~ (\mathrm{J}2000)$')
 sp.ax.tick_params(axis='both', which='major', labelsize=30)
-# plt.tight_layout()
-# plt.savefig(gv.plots_path + f'MQC_v{mqc_version}_source_density_map.pdf', bbox_inches='tight')
+# plt.tight_layout()
+# plt.savefig(gv.plots_path + f'MQC_v{mqc_version}_source_density_map.pdf', bbox_inches='tight')
 plt.show()
  
