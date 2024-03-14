@@ -384,6 +384,65 @@ def obtain_optimised_hyperpars(pycaret_pipeline, meta_model_name, pred_type='cla
     models_params_df      = models_params_df.rename(columns=new_cols)
     return models_params_df
 ##########################################
+# Methods to predict values using individual models
+# Predict AGN/Galaxy classification
+def predict_AGN_gal(catalog_df, 
+                    AGN_gal_model, 
+                    cal_AGN_gal_model, 
+                    threshold, 
+                    cal_threshold, 
+                    raw_score=True):
+    from pycaret import classification as pyc
+    from pycaret import regression as pyr
+    catalog_df = pyc.predict_model(AGN_gal_model, 
+                                   data=catalog_df, 
+                                   probability_threshold=threshold, 
+                                   raw_score=raw_score, 
+                                   round=10)
+    catalog_df = catalog_df.drop(columns=['Score_0'])
+    catalog_df = catalog_df.rename(columns={'Label': 'pred_class', 'Score_1': 'Score_AGN'})
+    catalog_df.loc[:, 'Score_AGN'] = np.around(catalog_df.loc[:, 'Score_AGN'], decimals=8)
+    pred_probs = cal_AGN_gal_model.predict(catalog_df.loc[:, 'Score_AGN'])
+    cal_class  = np.array(pred_probs >= cal_threshold).astype(int)
+    catalog_df['Prob_AGN']       = pred_probs
+    catalog_df['pred_class_cal'] = cal_class
+    return catalog_df
+
+# Predict radio detection for AGN
+def predict_radio_det(catalog_df, 
+                      radio_model, 
+                      cal_radio_model, 
+                      threshold, 
+                      cal_threshold, 
+                      raw_score=True):
+    from pycaret import classification as pyc
+    from pycaret import regression as pyr
+    catalog_df = pyc.predict_model(radio_model, 
+                                   data=catalog_df, 
+                                   probability_threshold=threshold, 
+                                   raw_score=raw_score, 
+                                   round=10)
+    catalog_df = catalog_df.drop(columns=['Score_0'])
+    catalog_df = catalog_df.rename(columns={'Label': 'pred_radio', 'Score_1': 'Score_radio'})
+    catalog_df.loc[:, 'Score_radio'] = np.around(catalog_df.loc[:, 'Score_radio'], decimals=8)
+    pred_probs = cal_radio_model.predict(catalog_df.loc[:, 'Score_radio'])
+    cal_class  = np.array(pred_probs >= cal_threshold).astype(int)
+    catalog_df['Prob_radio']     = pred_probs
+    catalog_df['pred_radio_cal'] = cal_class
+    return catalog_df
+
+# Predict redshift for radio-detected AGN
+def predict_z(catalog_df, 
+              redshift_model):
+    from pycaret import classification as pyc
+    from pycaret import regression as pyr
+    catalog_df = pyr.predict_model(redshift_model, 
+                                   data=catalog_df, 
+                                   round=10)
+    catalog_df = catalog_df.rename(columns={'Label': 'pred_Z'})
+    catalog_df.loc[:, 'pred_Z'] = np.around(catalog_df.loc[:, 'pred_Z'], decimals=4)
+    return catalog_df
+##########################################
 # Methods using SHAP Explanations and values
 # Sorted mean absolute SHAP values
 def mean_abs_SHAP_base_models(SHAP_values_dict, base_models_names):
@@ -438,15 +497,21 @@ class MidpointNormalize(mcolors.Normalize):
 
     e.g. im=ax1.imshow(array, norm=MidpointNormalize(midpoint=0.,vmin=-100, vmax=100))
     """
-    def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
-        self.midpoint = midpoint
-        mcolors.Normalize.__init__(self, vmin, vmax, clip)
+    def __init__(self, vmin=None, vmax=None, vcenter=None, clip=False):
+        self.vcenter = vcenter
+        super().__init__(vmin, vmax, clip)
 
     def __call__(self, value, clip=None):
         # I'm ignoring masked values and all kinds of edge cases to make a
         # simple example...
-        x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
-        return np.ma.masked_array(np.interp(value, x, y), np.isnan(value))
+        # Note also that we must extrapolate beyond vmin/vmax
+        x, y = [self.vmin, self.vcenter, self.vmax], [0, 0.5, 1.]
+        return np.ma.masked_array(np.interp(value, x, y,
+                                            left=-np.inf, right=np.inf))
+
+    def inverse(self, value):
+        y, x = [self.vmin, self.vcenter, self.vmax], [0, 0.5, 1]
+        return np.interp(value, x, y, left=-np.inf, right=np.inf)
 
 # Two functions to scale a color up or down (lighter or darker)
 def clamp(val, minimum=0, maximum=255):
