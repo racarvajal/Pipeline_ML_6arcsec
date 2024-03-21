@@ -43,11 +43,11 @@ data_dec = data['DEC']
 ax_props = {'axes.linewidth':3.5, 'axes.labelsize':20}
 fig  = plt.figure(figsize=(9,5), constrained_layout=True)
 ax1  = fig.add_subplot(111)
-sp = skyproj.HammerSkyproj(ax=ax1, rcparams=ax_props, lon_0=0)
+sp   = skyproj.HammerSkyproj(ax=ax1, rcparams=ax_props, lon_0=0)
 # sp = skyproj.McBrydeSkyproj(ax=ax1, rcparams=ax_props, lon_0=0)
 
-norm_sources  = mcolors.LogNorm(vmin=1, vmax=115)
-sp.draw_hpxbin(data_ra, data_dec, cmap='cet_bmy', nside=128, xsize=400, norm=norm_sources)
+norm_sources  = mcolors.LogNorm(vmin=1, vmax=1e3)
+sp.draw_hpxbin(data_ra, data_dec, cmap='cet_bmy', nside=128, xsize=400, norm=norm_sources, vmin=1)
 sp.draw_colorbar(pad=0.01, label=r'$\mathrm{Number ~ of ~ sources ~ per ~ bin}$',
                 fontsize=16, fraction=0.025, extend='max')
 sp.ax.set_xlabel(r'$\mathrm{Right ~ Ascension} ~ (\mathrm{J}2000)$')
