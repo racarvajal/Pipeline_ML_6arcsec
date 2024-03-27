@@ -239,3 +239,9 @@ tmp_shap/*.h5
 # Indices of sources in sub-set for HETDEX
 subsets_indices/*.txt
 !subsets_indices/README.md
+
+# Cutout fits files and plots
+cutouts_fits/
+cutouts_fits/*
+cutouts_plots/
+cutouts_plots/*
