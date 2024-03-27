@@ -41,7 +41,7 @@ for fits_file in file_names:
     plt.imshow(file_image, origin='lower', norm=norm_img, zorder=-1, cmap='plasma')
 
     centre_coord = file_wcs.pixel_to_world_values([file_header['NAXIS1'] / 2], [file_header['NAXIS2'] / 2])
-    axs.plot(centre_coord[0], centre_coord[1], marker='+', ms=180, color='red', transform=axs.get_transform('icrs'), alpha=0.5)
+    axs.plot(centre_coord[0], centre_coord[1], marker='+', ms=180, color='white', transform=axs.get_transform('icrs'), alpha=0.75, mew=2)
     
     add_beam(axs, major=file_header['BMAJ'] * u.deg, minor=file_header['BMIN'] * u.deg, angle=file_header['BPA'] * u.deg, frame=False, facecolor='white', lw=2.5, edgecolor='k')
     
