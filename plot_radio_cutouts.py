@@ -9,7 +9,7 @@ import numpy as np
 from astropy.io import fits
 from astropy.wcs import WCS
 from astropy import units as u
-from astropy.visualization.wcsaxes import add_beam, add_scalebar, SphericalCircle
+from astropy.visualization.wcsaxes import add_beam, add_scalebar
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -27,6 +27,7 @@ for fits_file in file_names:
     file_header = hdu_0.header
     file_image  = hdu_0.data
     file_wcs    = WCS(file_header).celestial
+    file_header['TIMESYS'] = 'utc'
 
     percents = np.percentile(file_image, q=[68.26, 99.9937])
 
@@ -47,9 +48,9 @@ for fits_file in file_names:
     
     bar_size_vertical = 0.75 if 'HETDEX' in fits_file else 1.75
     tick_prop = fm.FontProperties(size=20)
-    add_scalebar(axs, 15 * u.arcsec, label='$15\,\mathrm{arcsec}$', color='white', fontproperties=tick_prop, size_vertical=bar_size_vertical)
+    add_scalebar(axs, 15 * u.arcsec, label='$\mathbf{15 ~ arcsec}$', color='white', fontproperties=tick_prop, size_vertical=bar_size_vertical)
 
-    axs.annotate(text=f'$\mathrm{{ID}}:$ ${id_name:09,d}$'.replace(',', '$\,$'), xy=(0.016, 0.89),
+    axs.annotate(text=f'$\mathbf{{ID\!: {id_name:>09,d}}}$'.replace(',', '\\,'), xy=(0.016, 0.89),
                      xycoords='axes fraction', fontsize=30,ha='left', va='bottom', color='whitesmoke', bbox=dict(boxstyle='round,pad=0.1',
                       fc='gray', ec='k', lw=2))
 
