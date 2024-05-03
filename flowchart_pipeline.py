@@ -3,12 +3,14 @@
 import schemdraw
 from schemdraw import flow
 import schemdraw.elements as elm
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import global_variables as gv
-# import matplotlib as mpl
-# import matplotlib.pyplot as plt
 
-# mpl.rcdefaults()
-# plt.rcParams['text.usetex'] = True
+mpl.rcdefaults()
+plt.rcParams['text.usetex'] = True
+
+save_plot_flag = False
 
 with schemdraw.Drawing(show=False) as d:
     init           = flow.Start(h=1.5, w=2.75).at((0, 0)).label('SOURCE\nFROM\nCATALOGUE')
@@ -37,5 +39,6 @@ with schemdraw.Drawing(show=False) as d:
 
     final_ghost    = flow.Start(h=1.0, w=2.5).at((0, -18.0))
     # d.draw(show=True)
-    # d.save(gv.plots_path + 'flowchart_pipeline_extended.pdf')
+    if save_plot_flag:
+        d.save(gv.plots_path + 'flowchart_pipeline_extended.pdf')
 print('EOF')
