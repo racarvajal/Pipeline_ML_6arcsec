@@ -10,7 +10,7 @@ import global_variables as gv
 mpl.rcdefaults()
 plt.rcParams['text.usetex'] = True
 
-save_plot_flag = True
+save_plot_flag = False
 
 with schemdraw.Drawing(show=False) as d:
     init           = flow.Start(h=1.5, w=2.75).at((0, 0)).label('SOURCE\nFROM\nCATALOGUE')
@@ -20,7 +20,7 @@ with schemdraw.Drawing(show=False) as d:
     rGal_model     = flow.Decision(h=2.25, w=4, S='Predicted\nas radio', W='Predicted\nas no radio').at((5, -4.5)).label('SFG RADIO\nDETECTION\nMODEL')
     elm.Wire('-|', arrow='->').at(AGN_gal_model.W).to(rAGN_model.N)
     elm.Wire('-|', arrow='->').at(AGN_gal_model.E).to(rGal_model.N)
-    discarded      = flow.StateEnd(r=1.25).at((0, -6.5)).label('DISCARDED\nSOURCE')
+    discarded      = flow.StateEnd(r=1.25).at((0, -6.5)).label('NON-RADIO\nSOURCE')
     z_rAGN_model   = flow.Box(h=1.5, w=2.5).at((-5, -7.75)).label('RAGN Z\nPREDICTION\nMODEL')
     z_rGal_model   = flow.Box(h=1.5, w=2.5).at((5, -7.75)).label('RSFG Z\nPREDICTION\nMODEL')
     elm.Wire('-', arrow='->').at(rAGN_model.S).to(z_rAGN_model.N)
@@ -38,7 +38,7 @@ with schemdraw.Drawing(show=False) as d:
     elm.Wire('-', arrow='->').at(final_compile.S).to(final_state.N)
 
     final_ghost    = flow.Start(h=1.0, w=2.5).at((0, -18.0))
-    # d.draw(show=True)
+    # d.draw(show=True)
     if save_plot_flag:
         d.save(gv.plots_path + 'flowchart_pipeline_extended.pdf')
 print('EOF')
