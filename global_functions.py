@@ -12,7 +12,7 @@ import fasttreeshap
 import copy
 import sklearn.pipeline as skp
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import ConfusionMatrixDisplay, fbeta_score
+from sklearn.metrics import ConfusionMatrixDisplay, fbeta_score, brier_score_loss
 from astropy.visualization import LogStretch, PowerStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
 from pycaret import classification as pyc
@@ -145,6 +145,12 @@ def Recall_from_CM(cm_array, **kwargs):
 def f_beta(y_true, y_pred, **kwargs):
     f_score = fbeta_score(y_true, y_pred, beta=gv.beta_F)
     return f_score.astype('float32')
+
+def brier_skill_score(y_true, y_prob, **kwargs):
+    no_skill_ratio = np.nansum(np.array(y_true == 1)) / np.shape(y_true)[0]
+    brier_score    = brier_score_loss(y_true, y_prob)
+    skill_score    = 1 - brier_score / no_skill_ratio
+    return skill_score.astype('float32')
 
 # Create DataFrame with scores for several datasets
 def create_scores_df(list_of_cms, list_of_sets, list_of_scores):
