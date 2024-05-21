@@ -10,9 +10,9 @@ import global_variables as gv
 mpl.rcdefaults()
 plt.rcParams['text.usetex'] = False
 
-save_plot_flag = True
+save_plot_flag = False
 
-with schemdraw.Drawing(show=False) as d:
+with schemdraw.Drawing(show=False, margin=-0.25) as d:
     # d.config(unit=.75)
     training_data   = flow.Start(h=1.5, w=2.25).at((0, 0)).label(r'$\mathrm{TRAINING}$' + '\n' + r'$\mathrm{DATA}$')
 
