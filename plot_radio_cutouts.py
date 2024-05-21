@@ -84,6 +84,7 @@ for fits_file in file_names:
     plt.setp(axs.spines.values(), linewidth=3.5)
     plt.setp(axs.spines.values(), linewidth=3.5)
     plt.setp(axs.get_yticklabels(), visible=False)
+    axs.grid(True, zorder=1, lw=0.25)
     plt.tight_layout()
     if 'S82' in fits_file:
         folder_save = 'S82'
