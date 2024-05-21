@@ -13,10 +13,16 @@ from astropy.visualization.wcsaxes import add_beam, add_scalebar
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import matplotlib.patheffects as mpe
 from matplotlib import font_manager as fm
 
 mpl.rcdefaults()
 plt.rcParams['text.usetex'] = True
+
+depth_S82      = (52 * u.uJy).to(u.Jy)
+depth_HETDEX   = (71 * u.uJy).to(u.Jy)
+
+pe4            = [mpe.withStroke(linewidth=2.1, foreground='white', alpha=1)]
 
 
 file_names = glob.glob('cutouts_fits/*/*')
@@ -31,6 +37,17 @@ for fits_file in file_names:
 
     percents = np.percentile(file_image, q=[68.26, 99.9937])
 
+    if 'S82' in fits_file:
+        noise_sigma = depth_S82
+        cont_levels = [2, 3, 4, 5]
+        cont_widths = [1.45, 1.30, 1.15, 1.00]
+        cont_alpha  = 1.0
+    if 'HETDEX' in fits_file:
+        noise_sigma = depth_HETDEX
+        cont_levels = [1, 2, 3, 4, 5]
+        cont_widths = [1.60, 1.45, 1.30, 1.15, 1.00]
+        cont_alpha  = 1.0
+
     # norm_img = mcolors.TwoSlopeNorm(vcenter=0.0, vmin=percents[0], vmax=percents[1])
     # norm_img = mcolors.Normalize(vmin=percents[0], vmax=percents[1])
     norm_img = mcolors.PowerNorm(vmin=percents[0], vmax=percents[1], gamma=0.25)
@@ -39,7 +56,12 @@ for fits_file in file_names:
 
     fig  = plt.figure(figsize=(6.5, 6.5))
     axs  = fig.add_subplot(111, projection=file_wcs)
-    plt.imshow(file_image, origin='lower', norm=norm_img, zorder=-1, cmap='plasma')
+    axs.imshow(file_image, origin='lower', norm=norm_img, zorder=-1, cmap='plasma')
+
+    snr_data   = file_image / noise_sigma.value
+    contours   = axs.contour(snr_data, levels=cont_levels, colors='k',
+                                alpha=cont_alpha, linewidths=cont_widths, zorder=1)
+    contours.set(path_effects=pe4)
 
     centre_coord = file_wcs.pixel_to_world_values([file_header['NAXIS1'] / 2], [file_header['NAXIS2'] / 2])
     axs.plot(centre_coord[0], centre_coord[1], marker='+', ms=180, color='white', transform=axs.get_transform('icrs'), alpha=0.75, mew=2)
