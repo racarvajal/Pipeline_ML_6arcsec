@@ -12,7 +12,7 @@ plt.rcParams['text.usetex'] = True
 
 save_plot_flag = False
 
-with schemdraw.Drawing(show=False) as d:
+with schemdraw.Drawing(show=False, margin=-0.66) as d:
     init           = flow.Start(h=1.5, w=2.75).at((0, 0)).label('SOURCE\nFROM\nCATALOGUE')
     AGN_gal_model  = flow.Decision(h=2.25, w=3.75, W='Predicted\nas AGN', E='Predicted\nas SFG').at((0, -2.5)).label('AGN/SFG\nCLASSIFICATION\nMODEL')
     elm.Wire('-', arrow='->').at(init.S).to(AGN_gal_model.N)
