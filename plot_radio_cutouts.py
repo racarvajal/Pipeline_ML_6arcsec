@@ -39,11 +39,13 @@ file_names = glob.glob('cutouts_fits/*/*')
 
 for fits_file in tqdm(file_names, total=len(file_names)):
     id_name     = int(fits_file.split('_')[-1].split('.')[0])
-    hdu_0       = fits.open(fits_file)[0]
-    file_header = hdu_0.header
-    file_image  = hdu_0.data
+    with fits.open(fits_file) as hdu_l:
+        file_header = hdu_l[0].header
+        file_header['TIMESYS'] = 'utc'
+        file_image  = hdu_l[0].data
     file_wcs    = WCS(file_header).celestial
-    file_header['TIMESYS'] = 'utc'
+    # update header
+    file_header.update(file_wcs.to_header())
 
     percents = np.percentile(file_image, q=[68.26, 99.9937])
 
@@ -64,7 +66,7 @@ for fits_file in tqdm(file_names, total=len(file_names)):
     # norm_img = mcolors.SymLogNorm(linthresh=0.03, linscale=1, base=10, vmin=-percents[1], vmax=percents[1])
 
     fig  = plt.figure(figsize=(6.5, 6.5))
-    axs  = fig.add_subplot(111, projection=file_wcs)
+    axs  = fig.add_subplot(111, projection=file_wcs, slices=('x', 'y'))
     axs.imshow(file_image, origin='lower', norm=norm_img, zorder=-1, cmap='plasma', interpolation='nearest', aspect='equal')
 
     snr_data   = file_image / noise_sigma.value
@@ -115,7 +117,7 @@ for fits_file in tqdm(file_names, total=len(file_names)):
     lon.set_ticks_position('b')
     lon.set_ticklabel_position('b')
     lon.set_axislabel_position('b')
-    lon.tick_params(which='major', labelsize=14, direction='in')
+    lon.tick_params(which='major', labelsize=28, direction='in')
     lon.tick_params(which='major', length=8, width=1.5, direction='in')
     lat          = overlay['lat']
     lat.set_format_unit(u.arcsec)
@@ -123,14 +125,14 @@ for fits_file in tqdm(file_names, total=len(file_names)):
     lat.set_ticks_position('l')
     lat.set_ticklabel_position('l')
     lat.set_axislabel_position('l')
-    lat.tick_params(which='major', labelsize=14, direction='in')
+    lat.tick_params(which='major', labelsize=28, direction='in')
     lat.tick_params(which='major', length=8, width=1.5, direction='in')
 
     # Format axes
     # axs.set_xlabel('$\mathrm{R.A.}$', fontsize=22)
     # axs.set_ylabel('$\mathrm{Declination}$', fontsize=22)
-    lon.set_axislabel('$\Delta \mathrm{R.A.}$', fontsize=22)
-    lat.set_axislabel('$\Delta \mathrm{Dec.}$', fontsize=22)
+    lon.set_axislabel('$\Delta \mathrm{R.A.}$', fontsize=24)
+    lat.set_axislabel('$\Delta \mathrm{Dec.}$', fontsize=24)
     # axs.tick_params(axis='both', which='major', labelsize=14, direction='in')
     # axs.tick_params(which='major', length=8, width=1.5, direction='in')
     plt.setp(axs.spines.values(), linewidth=3.5)
