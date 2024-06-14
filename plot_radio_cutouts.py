@@ -29,6 +29,8 @@ depth_HETDEX   = (71 * u.uJy).to(u.Jy)
 
 pe1            = [mpe.withStroke(linewidth=1.0, foreground='black', alpha=1)]
 pe4            = [mpe.withStroke(linewidth=2.1, foreground='white', alpha=1)]
+pe5            = [mpe.withStroke(linewidth=0.5, foreground='white', alpha=0.5)]
+pe6            = [mpe.withStroke(linewidth=2.1, foreground='black', alpha=1)]
 
 parquet_HETDEX    = gv.preds_path + 'HETDEX_full_prediction.parquet'
 parquet_S82       = gv.preds_path + 'S82_full_prediction.parquet'
@@ -69,10 +71,14 @@ for fits_file in tqdm(file_names, total=len(file_names)):
     axs  = fig.add_subplot(111, projection=file_wcs, slices=('x', 'y'))
     axs.imshow(file_image, origin='lower', norm=norm_img, zorder=-1, cmap='plasma', interpolation='nearest', aspect='equal')
 
-    snr_data   = file_image / noise_sigma.value
-    contours   = axs.contour(snr_data, levels=cont_levels, colors='k',
-                                alpha=cont_alpha, linewidths=cont_widths, zorder=1)
-    contours.set(path_effects=pe4)
+    snr_data       = file_image / noise_sigma.value
+    snr_max        = np.nanmin([np.nanmax(snr_data), 20])
+    snr_max_level  = np.floor(snr_max)
+    snr_levels     = np.arange(2, snr_max_level + 1)
+    snr_linewidths = np.logspace(np.log10(1.75), np.log10(0.25), len(snr_levels))
+    contours   = axs.contour(snr_data, levels=snr_levels, colors='k',
+                                alpha=cont_alpha, linewidths=snr_linewidths, zorder=1)
+    contours.set(path_effects=pe5)
     base_xlim = axs.get_xlim()
     base_ylim = axs.get_ylim()
 
@@ -85,10 +91,13 @@ for fits_file in tqdm(file_names, total=len(file_names)):
     length_bar_arcsec = 15 * u.arcsec
     distance_ang_z    = cosmo.angular_diameter_distance(candidates_df.loc[id_name, 'pred_Z_rAGN'])
     length_bar_kpc    = (length_bar_arcsec * distance_ang_z).to(u.kpc, u.dimensionless_angles())
-    label_scale_bar   = rf'$\mathbf{{{length_bar_kpc:.1f}}}$'
+    label_scale_bar_arcs  = rf'$\mathbf{{{length_bar_arcsec.value:.0f} ~ arcsec}}$'
+    label_scale_bar_kpc   = rf'$\mathbf{{{length_bar_kpc.value:.1f} ~ kpc}}$'
+    label_scale_bar_joint = label_scale_bar_arcs + '\n' + label_scale_bar_kpc
     bar_size_vertical = 0.75 if 'HETDEX' in fits_file else 1.75
-    tick_prop = fm.FontProperties(size=20)
-    add_scalebar(axs, length_bar_arcsec, label=label_scale_bar, color='white', fontproperties=tick_prop, size_vertical=bar_size_vertical, path_effects=pe1)
+    tick_prop = fm.FontProperties(size=22)
+    # tick_prop = fm.FontProperties('outline')
+    add_scalebar(axs, length_bar_arcsec, label=label_scale_bar_joint, color='white', fontproperties=tick_prop, size_vertical=bar_size_vertical, path_effects=pe1, fill_bar=True, label_top=True)
 
     axs.annotate(text=f'$\mathbf{{ID\!: {id_name:>09,d}}}$'.replace(',', '\\,'), xy=(0.016, 0.89),
                      xycoords='axes fraction', fontsize=30, ha='left', va='bottom', color='whitesmoke', bbox=dict(boxstyle='round, pad=0.1',
