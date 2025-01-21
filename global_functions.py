@@ -7,16 +7,12 @@
 # Initial imports
 import numpy as np
 import pandas as pd
-import shap
-import fasttreeshap
 import copy
 import sklearn.pipeline as skp
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import ConfusionMatrixDisplay, fbeta_score, brier_score_loss
 from astropy.visualization import LogStretch, PowerStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
-from pycaret import classification as pyc
-from pycaret import regression as pyr
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import matplotlib.cm as cm
@@ -177,6 +173,8 @@ def create_scores_df(list_of_cms, list_of_sets, list_of_scores):
 ##########################################
 # Methods using Pycaret pipelines
 def get_final_column_names(pycaret_pipeline, sample_df, verbose=False):
+    from pycaret import classification as pyc
+    from pycaret import regression as pyr
     if isinstance(pycaret_pipeline, skp.Pipeline):
         for (name, method) in pycaret_pipeline.named_steps.items():
             if method != 'passthrough' and name != 'trained_model':
@@ -201,7 +199,8 @@ def get_final_column_names(pycaret_pipeline, sample_df, verbose=False):
 
 # Feature importance (or mean of) from meta model (or base models)
 def get_feature_importances_df(pycaret_pipeline, sample_df, n=10):
-    
+    from pycaret import classification as pyc
+    from pycaret import regression as pyr
     final_cols = get_final_column_names(pycaret_pipeline, sample_df)
     
     if isinstance(pycaret_pipeline, skp.Pipeline):
@@ -239,6 +238,8 @@ def get_feature_importances_df(pycaret_pipeline, sample_df, n=10):
     return sorted_df
 
 def get_base_estimators_names(pycaret_pipeline):
+    from pycaret import classification as pyc
+    from pycaret import regression as pyr
     if isinstance(pycaret_pipeline, skp.Pipeline):
         estimators  = pycaret_pipeline['trained_model'].estimators
     else:
@@ -248,6 +249,8 @@ def get_base_estimators_names(pycaret_pipeline):
     return estimators_list
 
 def get_base_estimators_models(pycaret_pipeline):
+    from pycaret import classification as pyc
+    from pycaret import regression as pyr
     if isinstance(pycaret_pipeline, skp.Pipeline):
         estimators_  = pycaret_pipeline['trained_model'].estimators_
     else:
@@ -256,6 +259,8 @@ def get_base_estimators_models(pycaret_pipeline):
 
 # Run data through previous steps of pipeline
 def preprocess_data(pycaret_pipeline, data_df, base_models_names, verbose=False):
+    from pycaret import classification as pyc
+    from pycaret import regression as pyr
     processed_data = data_df.loc[:, get_final_column_names(pycaret_pipeline, data_df)].copy()
     processed_idx_data  = processed_data.index
     # processed_cols_data  = processed_data.columns
@@ -278,6 +283,8 @@ def preprocess_data(pycaret_pipeline, data_df, base_models_names, verbose=False)
 
 # Sorted feature importances
 def feat_importances_base_models(base_models_names, base_models, transformed_data_df):
+    from pycaret import classification as pyc
+    from pycaret import regression as pyr
     coef_sorted_base_df = {}
     feat_names = transformed_data_df.columns.drop(base_models_names)
     for model, model_fit in zip(base_models_names, base_models):
@@ -302,6 +309,8 @@ def feat_importances_base_models(base_models_names, base_models, transformed_dat
 
 # Sorted feature importances
 def feat_importances_meta_model(pycaret_pipeline, transformed_data_df):
+    from pycaret import classification as pyc
+    from pycaret import regression as pyr
     extended_cols_data = transformed_data_df.columns
     if isinstance(pycaret_pipeline, skp.Pipeline):
         if hasattr(pycaret_pipeline.named_steps['trained_model'].final_estimator_, 'feature_importances_'):
@@ -326,6 +335,8 @@ def feat_importances_meta_model(pycaret_pipeline, transformed_data_df):
 
 # Obtain hyperparameters values after optimisation
 def obtain_optimised_hyperpars(pycaret_pipeline, meta_model_name, pred_type='classification'):
+    from pycaret import classification as pyc
+    from pycaret import regression as pyr
     base_names            = get_base_estimators_names(pycaret_pipeline)
     base_models           = get_base_estimators_models(pycaret_pipeline)
     # Optimised params from meta model
@@ -452,6 +463,8 @@ def predict_z(catalog_df,
 # Methods using SHAP Explanations and values
 # Sorted mean absolute SHAP values
 def mean_abs_SHAP_base_models(SHAP_values_dict, base_models_names):
+    import shap
+    import fasttreeshap
     sorted_mean_abs_SHAP_df            = {}
     for model in base_models_names:
         column_names_base              = SHAP_values_dict[model].feature_names
@@ -470,6 +483,8 @@ def mean_abs_SHAP_base_models(SHAP_values_dict, base_models_names):
 
 # Sorted mean absolute SHAP values
 def mean_abs_SHAP_meta_model(SHAP_values):
+    import shap
+    import fasttreeshap
     column_names            = SHAP_values.feature_names
     if np.ndim(SHAP_values.values) == 2:
         mean_abs_SHAP_coefs     = np.mean(np.abs(SHAP_values.values), axis=0)
