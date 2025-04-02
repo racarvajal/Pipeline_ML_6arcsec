@@ -94,10 +94,10 @@ def conf_mat_func(true_class_arr, predicted_class_arr):
 
 def conf_mat_random(true_class_arr):
     class_prob = np.sum(np.array(true_class_arr == 1)) / np.shape(true_class_arr)[0]
-    cm = np.array([[(1 - class_prob) * np.sum(np.array(true_class_arr == 0)),
-                    class_prob * np.sum(np.array(true_class_arr == 0))],
-                   [(1 - class_prob) * np.sum(np.array(true_class_arr == 1)),
-                    class_prob * np.sum(np.array(true_class_arr == 1))]])
+    cm = np.array([[int(np.rint((1 - class_prob) * np.sum(np.array(true_class_arr == 0)))),
+                    int(np.rint(class_prob * np.sum(np.array(true_class_arr == 0))))],
+                   [int(np.rint((1 - class_prob) * np.sum(np.array(true_class_arr == 1)))),
+                    int(np.rint(class_prob * np.sum(np.array(true_class_arr == 1))))]])
     return cm
 
 def flatten_CM(cm_array, **kwargs):
