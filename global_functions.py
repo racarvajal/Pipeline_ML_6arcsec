@@ -510,6 +510,16 @@ pe2            = [mpe.Stroke(linewidth=3.0, foreground='white'),
                   mpe.Stroke(foreground='white', alpha=1),
                   mpe.Normal()]
 
+def path_white(width):
+    pe = [mpe.Stroke(linewidth=width, foreground='white'),
+          mpe.Normal()]
+    return pe
+
+def path_black(width):
+    pe = [mpe.Stroke(linewidth=width, foreground='black'),
+          mpe.Normal()]
+    return pe
+
 # Create class to normalize asymmetric colorscales  
 # (from http://chris35wills.github.io/matplotlib_diverging_colorbar/).
 class MidpointNormalize(mcolors.Normalize):
@@ -733,6 +743,81 @@ def plot_shap_decision(pred_type, model_name, shap_values, shap_explainer, col_n
     plt.tight_layout()
     return ax
 
+def color_hist2d_scipy(x, y, values, ax_tmp, bins=22, cmap='plasma',
+                       target_statistic='mean', norm=mcolors.Normalize(), lw=0.45):
+    """
+    Creates a 2D histogram with bins colored by the average value of 'values' within each bin using scipy.stats.binned_statistic_2d.
+
+    Args:
+      x: x-coordinates of the points.
+      y: y-coordinates of the points.
+      values: Values to be averaged for each bin.
+      ax_tmp: axis.
+      bins: Number of bins in each dimension.
+      cmap: Colormap to use.
+      target_statistic: Statistic to use with values.
+      norm: Normalization object.
+      lw: Width of lines in patches
+
+    Returns:
+      A matplotlib Axes object.
+    """
+    import numpy as np
+    from scipy import stats
+    import matplotlib.pyplot as plt
+    import matplotlib.colors as mcolors
+    import matplotlib.patches as mpatches
+    from matplotlib.collections import PatchCollection
+
+    # Calculate the binned statistics
+    statistic, xedges, yedges, binnumber = stats.binned_statistic_2d(x, y, values, statistic=target_statistic, bins=bins)
+
+    # Handle empty bins
+    if target_statistic == 'count':
+        statistic[np.array(statistic == 0)] = np.nan
+
+    stat_negative_num = np.nansum(np.array(statistic <= 0))
+    if stat_negative_num > 0:
+        norm = mcolors.Normalize()
+
+    # Create a masked array based on the provided mask
+    mask = np.isfinite(statistic)
+    masked_statistic = np.ma.masked_array(statistic, mask=~mask)
+
+    # Create the 2D histogram plot with colored bins
+    im_tmp  = ax_tmp.pcolormesh(xedges, yedges, statistic.T,
+                                cmap=cmap, norm=norm, shading='flat',
+                                rasterized=True)
+
+    # Create meshgrid of edges
+    X, Y = np.meshgrid(xedges[:-1], yedges[:-1], indexing='ij')
+    
+    # Create arrays of widths and heights
+    widths  = np.diff(xedges)[:, np.newaxis]
+    heights = np.diff(yedges)[np.newaxis, :]
+    
+    # Create mask for non-nan and finite values
+    mask = ~np.isnan(masked_statistic) & np.isfinite(masked_statistic)
+    
+    # Create flattened arrays for rectangle properties
+    x = X[mask]
+    y = Y[mask]
+    w = np.tile(widths, (1, len(yedges)-1))[mask]
+    h = np.tile(heights, (len(xedges)-1, 1))[mask]
+    
+    # Create patches
+    patches = [mpatches.Rectangle((x_, y_), w_, h_) for x_, y_, w_, h_ in zip(x, y, w, h)]
+    
+    # Create a PatchCollection and add it to the axis
+    if patches:  # Only create and add PatchCollection if there are patches
+        pc = PatchCollection(patches, facecolors='none', edgecolors='k', linewidths=lw)
+        ax_tmp.add_collection(pc)
+    
+    x_lims = ax_tmp.get_xlim()
+    y_lims = ax_tmp.get_ylim()
+
+    return ax_tmp, im_tmp
+
 ##########################################
 # Methods for contour plots
 
@@ -745,6 +830,13 @@ def create_colour_gradient(colour_hex):
     colour_rgb_darker = tuple(colour_rgb_darker)
     colours      = [colour_rgb_darker, colour_rgb_bright] # first color is darker
     cm_gradient = mcolors.LinearSegmentedColormap.from_list(f'gradient_{colour_hex}', colours, N=50)
+    return cm_gradient
+
+def create_colour_gradient_to_white(colour_hex):
+    colour_rgb  = mcolors.to_rgb(colour_hex)
+    white_rgb   = mcolors.to_rgb('#FFFFFF')
+    colours     = [white_rgb, colour_rgb] # first color is darker
+    cm_gradient = mcolors.LinearSegmentedColormap.from_list(f'gradient_{colour_hex}_w', colours, N=50)
     return cm_gradient
 
 def clean_and_smooth_matrix(matrix, sigma=0.9):
