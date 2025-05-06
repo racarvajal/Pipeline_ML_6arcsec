@@ -689,6 +689,8 @@ def plot_redshift_compare(true_z, predicted_z, ax_pre, title=None, dpi=10, cmap=
 
 # Plot SHAP beeswarm
 def plot_shap_beeswarm(pred_type, model_name, shap_values, cmap=gv.cmap_shap, ax_factor=0.75, base_meta=''):
+    import shap
+    import fasttreeshap
     if np.ndim(shap_values.values) == 2:
         fasttreeshap.plots.beeswarm(copy.deepcopy(shap_values), log_scale=False, show=False, color_bar=False,
                             color=plt.get_cmap(cmap), max_display=len(shap_values.feature_names), alpha=1.0)
@@ -714,7 +716,13 @@ def plot_shap_beeswarm(pred_type, model_name, shap_values, cmap=gv.cmap_shap, ax
     plt.tight_layout()
 
 # Plot SHAP decision
-def plot_shap_decision(pred_type, model_name, shap_values, shap_explainer, col_names, ax, link, cmap=gv.cmap_shap, new_base_value=None, base_meta='', xlim=None):
+def plot_shap_decision(pred_type, model_name, shap_values,
+                       shap_explainer, col_names, ax,
+                       link, cmap=gv.cmap_shap,
+                       new_base_value=None, base_meta='',
+                       xlim=None, **kwargs):
+    import shap
+    import fasttreeshap
     if np.ndim(shap_values.values) == 2:
         shap.plots.decision(base_value=shap_explainer.expected_value,
                             shap_values=shap_values.values,
@@ -723,7 +731,7 @@ def plot_shap_decision(pred_type, model_name, shap_values, shap_explainer, col_n
                             highlight=None, auto_size_plot=False,
                             show=False, xlim=xlim,
                             feature_display_range=slice(-1, -(len(shap_values.feature_names) +1), -1),
-                            new_base_value=new_base_value)
+                            new_base_value=new_base_value, **kwargs)
     if np.ndim(shap_values.values) > 2:
         shap.plots.decision(base_value=shap_explainer.expected_value[-1],
                             shap_values=(shap_values.values)[:, :, 1],
@@ -732,7 +740,7 @@ def plot_shap_decision(pred_type, model_name, shap_values, shap_explainer, col_n
                             highlight=None, auto_size_plot=False,
                             show=False, xlim=None,
                             feature_display_range=slice(-1, -(len(shap_values.feature_names) +1), -1),
-                            new_base_value=new_base_value)
+                            new_base_value=new_base_value, **kwargs)
     ax.tick_params('x', labelsize=14)
     ax.xaxis.get_offset_text().set_fontsize(14)
     #ax1.xaxis.get_offset_text().set_position((0,1))
@@ -821,23 +829,60 @@ def color_hist2d_scipy(x, y, values, ax_tmp, bins=22, cmap='plasma',
 ##########################################
 # Methods for contour plots
 
+# def create_colour_gradient(colour_hex):
+#     colour_rgb = mcolors.to_rgb(colour_hex)
+#     colour_rgb_darker = list(colour_rgb)
+#     colour_rgb_bright = list([cut_rgb_val(value * 1.5) for value in list(colour_rgb)])
+#     colour_rgb_darker = list([value * 0.7 for value in colour_rgb_darker])
+#     colour_rgb_bright = tuple(colour_rgb_bright)
+#     colour_rgb_darker = tuple(colour_rgb_darker)
+#     colours      = [colour_rgb_darker, colour_rgb_bright] # first color is darker
+#     cm_gradient = mcolors.LinearSegmentedColormap.from_list(f'gradient_{colour_hex}', colours, N=50)
+#     return cm_gradient
+
+# def create_colour_gradient_to_white(colour_hex):
+#     colour_rgb  = mcolors.to_rgb(colour_hex)
+#     white_rgb   = mcolors.to_rgb('#FFFFFF')
+#     colours     = [white_rgb, colour_rgb] # first color is darker
+#     cm_gradient = mcolors.LinearSegmentedColormap.from_list(f'gradient_{colour_hex}_w', colours, N=50)
+#     return cm_gradient
+
 def create_colour_gradient(colour_hex):
+    """Creates a color gradient from a base hex color to a brighter and darker shade."""
     colour_rgb = mcolors.to_rgb(colour_hex)
-    colour_rgb_darker = list(colour_rgb)
-    colour_rgb_bright = list([cut_rgb_val(value * 1.5) for value in list(colour_rgb)])
-    colour_rgb_darker = list([value * 0.7 for value in colour_rgb_darker])
-    colour_rgb_bright = tuple(colour_rgb_bright)
-    colour_rgb_darker = tuple(colour_rgb_darker)
-    colours      = [colour_rgb_darker, colour_rgb_bright] # first color is darker
-    cm_gradient = mcolors.LinearSegmentedColormap.from_list(f'gradient_{colour_hex}', colours, N=50)
-    return cm_gradient
+    darker = tuple([max(0, c * 0.7) for c in colour_rgb])
+    brighter = tuple([min(1, c * 1.5) for c in colour_rgb])
+    colors = [darker, brighter]
+    return mcolors.LinearSegmentedColormap.from_list(f'gradient_{colour_hex}', colors, N=50)
 
 def create_colour_gradient_to_white(colour_hex):
-    colour_rgb  = mcolors.to_rgb(colour_hex)
-    white_rgb   = mcolors.to_rgb('#FFFFFF')
-    colours     = [white_rgb, colour_rgb] # first color is darker
-    cm_gradient = mcolors.LinearSegmentedColormap.from_list(f'gradient_{colour_hex}_w', colours, N=50)
-    return cm_gradient
+    """Creates a color gradient from white to a base hex color."""
+    colour_rgb = mcolors.to_rgb(colour_hex)
+    white_rgb = mcolors.to_rgb('#FFFFFF')
+    colors = [white_rgb, colour_rgb]
+    return mcolors.LinearSegmentedColormap.from_list(f'gradient_{colour_hex}_w', colors, N=50)
+
+def create_shaded_colour(colour_hex, alpha=0.6):
+    """Creates a shaded (transparent) version of a hex color."""
+    colour_rgb = mcolors.to_rgb(colour_hex)
+    return tuple(list(colour_rgb) + [alpha])
+
+def create_darker_brighter_rgb(colour_hex):
+    """Creates darker and brighter RGB tuples from a hex color."""
+    colour_rgb = mcolors.to_rgb(colour_hex)
+    darker = tuple([max(0, c * 0.7) for c in colour_rgb])
+    brighter = tuple([min(1, c * 1.5) for c in colour_rgb])
+    return darker, brighter
+
+def combine_colormaps(cmap1, cmap2, midpoint=0.5):
+    """Combines two colormaps with a specified midpoint."""
+    n_steps = cmap1.N
+    # Get the colors from each colormap
+    colors1 = cmap1(np.linspace(0, 1, int(n_steps * midpoint), endpoint=False))
+    colors2 = cmap2(np.linspace(0, 1, int(n_steps * (1 - midpoint)) + 1))
+    # Combine them and create a new colormap
+    combined_colors = np.vstack((colors1, colors2))
+    return mcolors.LinearSegmentedColormap.from_list('combined_cmap', combined_colors)
 
 def clean_and_smooth_matrix(matrix, sigma=0.9):
     matrix[~np.isfinite(matrix)] = 0

@@ -94,7 +94,7 @@ high_z_limit       = 2.0  # 3.6
 # cmap_z_plots       = 'cet_linear_kryw_5_100_c64_r'
 
 cmap_bands         = 'cmr.rainforest'
-cmap_shap          = 'cmr.ember'  # cmr.pride, cet_CET_R3 cmr.wildfire cmr.guppy
+cmap_shap          = 'cmr.guppy_r'  # cmr.pride, cet_CET_R3 cmr.wildfire cmr.guppy cmr.ember
 cmap_conf_matr     = 'cmr.neutral_r'
 cmap_z_plots       = 'cmr.fall_r'
 cmap_dens_plots    = 'cmr.neutral_r'
