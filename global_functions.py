@@ -408,7 +408,8 @@ def predict_AGN_gal(catalog_df,
                     cal_AGN_gal_model, 
                     threshold, 
                     cal_threshold, 
-                    raw_score=True):
+                    raw_score=True,
+                    cols_out=['pred_class', 'Score_AGN', 'Prob_AGN', 'pred_class_cal']):
     from pycaret import classification as pyc
     from pycaret import regression as pyr
     catalog_df = pyc.predict_model(AGN_gal_model, 
@@ -417,12 +418,12 @@ def predict_AGN_gal(catalog_df,
                                    raw_score=raw_score, 
                                    round=10)
     catalog_df = catalog_df.drop(columns=['Score_0'])
-    catalog_df = catalog_df.rename(columns={'Label': 'pred_class', 'Score_1': 'Score_AGN'})
-    catalog_df.loc[:, 'Score_AGN'] = np.around(catalog_df.loc[:, 'Score_AGN'], decimals=8)
-    pred_probs = cal_AGN_gal_model.predict(catalog_df.loc[:, 'Score_AGN'])
+    catalog_df = catalog_df.rename(columns={'Label': cols_out[0], 'Score_1': cols_out[1]})
+    catalog_df.loc[:, cols_out[1]] = np.around(catalog_df.loc[:, cols_out[1]], decimals=8)
+    pred_probs = cal_AGN_gal_model.predict(catalog_df.loc[:, cols_out[1]])
     cal_class  = np.array(pred_probs >= cal_threshold).astype(int)
-    catalog_df['Prob_AGN']       = pred_probs
-    catalog_df['pred_class_cal'] = cal_class
+    catalog_df[cols_out[2]]       = pred_probs
+    catalog_df[cols_out[3]] = cal_class
     return catalog_df
 
 # Predict radio detection for AGN
@@ -431,7 +432,8 @@ def predict_radio_det(catalog_df,
                       cal_radio_model, 
                       threshold, 
                       cal_threshold, 
-                      raw_score=True):
+                      raw_score=True,
+                      cols_out=['pred_radio', 'Score_radio', 'Prob_radio', 'pred_radio_cal']):
     from pycaret import classification as pyc
     from pycaret import regression as pyr
     catalog_df = pyc.predict_model(radio_model, 
@@ -440,24 +442,25 @@ def predict_radio_det(catalog_df,
                                    raw_score=raw_score, 
                                    round=10)
     catalog_df = catalog_df.drop(columns=['Score_0'])
-    catalog_df = catalog_df.rename(columns={'Label': 'pred_radio', 'Score_1': 'Score_radio'})
-    catalog_df.loc[:, 'Score_radio'] = np.around(catalog_df.loc[:, 'Score_radio'], decimals=8)
-    pred_probs = cal_radio_model.predict(catalog_df.loc[:, 'Score_radio'])
+    catalog_df = catalog_df.rename(columns={'Label': cols_out[0], 'Score_1': cols_out[1]})
+    catalog_df.loc[:, cols_out[1]] = np.around(catalog_df.loc[:, cols_out[1]], decimals=8)
+    pred_probs = cal_radio_model.predict(catalog_df.loc[:, cols_out[1]])
     cal_class  = np.array(pred_probs >= cal_threshold).astype(int)
-    catalog_df['Prob_radio']     = pred_probs
-    catalog_df['pred_radio_cal'] = cal_class
+    catalog_df[cols_out[2]]     = pred_probs
+    catalog_df[cols_out[3]] = cal_class
     return catalog_df
 
 # Predict redshift for radio-detected AGN
 def predict_z(catalog_df, 
-              redshift_model):
+              redshift_model,
+              cols_out=['pred_Z']):
     from pycaret import classification as pyc
     from pycaret import regression as pyr
     catalog_df = pyr.predict_model(redshift_model, 
                                    data=catalog_df, 
                                    round=10)
-    catalog_df = catalog_df.rename(columns={'Label': 'pred_Z'})
-    catalog_df.loc[:, 'pred_Z'] = np.around(catalog_df.loc[:, 'pred_Z'], decimals=4)
+    catalog_df = catalog_df.rename(columns={'Label': cols_out[0]})
+    catalog_df.loc[:, cols_out[0]] = np.around(catalog_df.loc[:, cols_out[0]], decimals=4)
     return catalog_df
 ##########################################
 # Methods using SHAP Explanations and values
@@ -738,7 +741,7 @@ def plot_shap_decision(pred_type, model_name, shap_values,
                             feature_names=col_names.to_list(),
                             link=link, plot_color=plt.get_cmap(cmap),
                             highlight=None, auto_size_plot=False,
-                            show=False, xlim=None,
+                            show=False, xlim=xlim,
                             feature_display_range=slice(-1, -(len(shap_values.feature_names) +1), -1),
                             new_base_value=new_base_value, **kwargs)
     ax.tick_params('x', labelsize=14)
