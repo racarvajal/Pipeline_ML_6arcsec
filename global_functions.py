@@ -865,6 +865,13 @@ def create_colour_gradient_to_white(colour_hex):
     colors = [white_rgb, colour_rgb]
     return mcolors.LinearSegmentedColormap.from_list(f'gradient_{colour_hex}_w', colors, N=50)
 
+def create_colour_gradient_to_black(colour_hex):
+    """Creates a color gradient from black to a base hex color."""
+    colour_rgb = mcolors.to_rgb(colour_hex)
+    black_rgb  = mcolors.to_rgb('#000000')
+    colors = [black_rgb, colour_rgb]
+    return mcolors.LinearSegmentedColormap.from_list(f'gradient_{colour_hex}_w', colors, N=50)
+
 def create_shaded_colour(colour_hex, alpha=0.6):
     """Creates a shaded (transparent) version of a hex color."""
     colour_rgb = mcolors.to_rgb(colour_hex)
