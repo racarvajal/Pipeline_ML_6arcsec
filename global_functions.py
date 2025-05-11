@@ -755,7 +755,8 @@ def plot_shap_decision(pred_type, model_name, shap_values,
     return ax
 
 def color_hist2d_scipy(x, y, values, ax_tmp, bins=22, cmap='plasma',
-                       target_statistic='mean', norm=mcolors.Normalize(), lw=0.45):
+                       target_statistic='mean', norm=mcolors.Normalize(),
+                       lw=0.45):
     """
     Creates a 2D histogram with bins colored by the average value of 'values' within each bin using scipy.stats.binned_statistic_2d.
 
