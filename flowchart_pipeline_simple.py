@@ -45,7 +45,7 @@ with schemdraw.Drawing(show=False, margin=-0.66) as d:
     final_state    = flow.StateEnd(r=1.30).at((1.30, -15.25)).label(r'$\mathrm{FINAL}$' '\n' r'$\mathrm{PREDICTED}$' '\n' r'$\mathrm{SOURCES}$')
     elm.Wire('-', arrow='->').at(final_compile.S).to(final_state.N)
 
-    final_ghost    = flow.Start(h=1.0, w=2.5).at((0, -18.0))
+    #final_ghost    = flow.Start(h=1.0, w=2.5).at((0, -18.0))
     d.draw(show=True)
     if save_plot_flag:
         name_file = 'flowchart_pipeline_extended_ltx_simple.pdf'
