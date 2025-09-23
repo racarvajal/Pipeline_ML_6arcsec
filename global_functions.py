@@ -924,3 +924,91 @@ def cut_rgb_val(val):
         return 1.0
     else:
         return val
+
+def set_aaasize(width='column', fraction=1, aspect=None, usetex=True):
+    """
+    Set figure dimensions and rcParams for Astronomy & Astrophysics (A&A).
+
+    Parameters
+    ----------
+    width : str or float
+        'column' (~249.45 pt ≈ 8.8 cm), 'text' (~510.24 pt ≈ 18 cm), 
+        'halfcolumn' (~124.72 pt ≈ 4.4 cm), 
+        or a custom width in pt.
+    fraction : float
+        Fraction of the width the figure should occupy.
+    aspect : float, optional
+        Height/width ratio. If None, golden ratio (~0.62) is used.
+    usetex : bool
+        If True, use LaTeX for all text. If False, fallback to Matplotlib fonts.
+
+    Returns
+    -------
+    fig_dim : tuple
+        Dimensions of figure in inches, to be passed to figsize.
+    """
+    import matplotlib.pyplot as plt
+    
+    # A&A default widths (in pt)
+    if width == 'column':
+        fig_width_pt = 249.45
+    elif width == 'text':
+        fig_width_pt = 510.24
+    elif width == 'halfcolumn':
+        fig_width_pt = 124.72
+    else:
+        fig_width_pt = float(width)  # custom value in pt
+
+    # Convert from pt to inches
+    inches_per_pt = 1 / 72.27
+    fig_width_in  = fig_width_pt * inches_per_pt * fraction
+
+    # Default to golden ratio if no aspect is given
+    if aspect is None:
+        aspect    = (5**0.5 - 1) / 2
+
+    fig_height_in = fig_width_in * aspect
+
+    scale         = fraction ** 0.8  # sublinear scaling looks nicer for fonts
+
+    # Apply A&A style
+    rc = {
+        "font.family": "serif",
+        "font.size": 11 * scale,
+        "axes.labelsize": 11 * scale,
+        "axes.titlesize": 11 * scale,
+        "xtick.labelsize": 11 * scale,
+        "ytick.labelsize": 11 * scale,
+        "legend.fontsize": 8 * scale,
+        "lines.linewidth": 1.1 * scale,
+        "axes.linewidth": 0.8 * scale,
+        "xtick.major.width": 1.1 * scale,
+        "ytick.major.width": 1.1 * scale,
+        "xtick.minor.width": 0.8 * scale,
+        "ytick.minor.width": 0.8 * scale,
+        "xtick.major.size": 3 * scale,
+        "ytick.major.size": 3 * scale,
+        "xtick.minor.size": 1.5 * scale,
+        "ytick.minor.size": 1.5 * scale,
+        "patch.linewidth": 1.1 * scale,
+        "savefig.bbox": "tight",
+        "savefig.pad_inches": 0.03,
+        "xtick.direction": "in",
+        "ytick.direction": "in",
+        "lines.markeredgewidth": 1.0 * scale,
+    }
+
+    if usetex:
+        rc.update({
+            "text.usetex": True,
+            "font.serif": [],  # empty = LaTeX default (Times in A&A)
+        })
+    else:
+        rc.update({
+            "text.usetex": False,
+            "font.serif": ["Times New Roman", "Times"],
+        })
+
+    plt.rcParams.update(rc)
+
+    return (fig_width_in, fig_height_in), rc
