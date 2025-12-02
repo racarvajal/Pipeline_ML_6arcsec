@@ -589,7 +589,7 @@ def plot_conf_mat(confusion_matrix, title, axin, display_labels=['0', '1'], cmap
 
     if log_stretch:
         norm = ImageNormalize(stretch=LogStretch())
-    if not log_stretch:
+    else:
         norm = ImageNormalize(stretch=PowerStretch(0.35))
 
     # NOTE: Fill all variables here with default values of the plot_confusion_matrix
@@ -896,6 +896,7 @@ def combine_colormaps(cmap1, cmap2, midpoint=0.5):
     return mcolors.LinearSegmentedColormap.from_list('combined_cmap', combined_colors)
 
 def clean_and_smooth_matrix(matrix, sigma=0.9):
+    from scipy.ndimage import gaussian_filter
     matrix[~np.isfinite(matrix)] = 0
     matrix_smooth = gaussian_filter(matrix, sigma=0.9)
     matrix_smooth[~np.isfinite(matrix_smooth)] = 0
