@@ -970,39 +970,78 @@ def set_aaasize(width='column', fraction=1, aspect=None, usetex=True):
 
     fig_height_in = fig_width_in * aspect
 
-    scale         = fraction ** 0.8  # sublinear scaling looks nicer for fonts
+    # scale           = fraction ** 0.8  # sublinear scaling looks nicer for fonts
+    reference_width = 3.5
+    scale           = fig_width_in / reference_width
+    scale           = max(0.7, min(scale, 1.6))  # avoids too large sizes
 
     # Apply A&A style
     rc = {
         "font.family": "serif",
         "font.size": 11 * scale,
+
         "axes.labelsize": 11 * scale,
         "axes.titlesize": 11 * scale,
+        "axes.linewidth": 1.1 * scale,
+        "axes.axisbelow": True,
+
         "xtick.labelsize": 11 * scale,
         "ytick.labelsize": 11 * scale,
-        "legend.fontsize": 8 * scale,
-        "lines.linewidth": 1.1 * scale,
-        "axes.linewidth": 0.8 * scale,
+
+        "xtick.direction": "in",
+        "ytick.direction": "in",
+        "xtick.top": True,
+        "ytick.right": True,
+
         "xtick.major.width": 1.1 * scale,
         "ytick.major.width": 1.1 * scale,
         "xtick.minor.width": 0.8 * scale,
         "ytick.minor.width": 0.8 * scale,
-        "xtick.major.size": 3 * scale,
-        "ytick.major.size": 3 * scale,
-        "xtick.minor.size": 1.5 * scale,
-        "ytick.minor.size": 1.5 * scale,
+
+        "xtick.major.size": 3.5 * scale,
+        "ytick.major.size": 3.5 * scale,
+        "xtick.minor.size": 2 * scale,
+        "ytick.minor.size": 2 * scale,
+
+        "xtick.minor.visible": True,
+        "ytick.minor.visible": True,
+
+        "lines.linewidth": 1.1 * scale,
+        "lines.markeredgewidth": 1.0 * scale,
+        "lines.markersize": 4 * scale,
+
+        "grid.linewidth": 0.6 * scale,
+        "grid.alpha": 0.3,
+
+        "legend.fontsize": 8 * scale,
+        "legend.title_fontsize": 8 * scale,
+        "legend.frameon": True,
+
         "patch.linewidth": 1.1 * scale,
+
+        "figure.dpi": 100,
+        "savefig.dpi": 300,
+
         "savefig.bbox": "tight",
         "savefig.pad_inches": 0.03,
-        "xtick.direction": "in",
-        "ytick.direction": "in",
-        "lines.markeredgewidth": 1.0 * scale,
+        
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+        "pdf.use14corefonts": False,
+
+        "figure.constrained_layout.use": True,
+        "figure.constrained_layout.w_pad": 0.0,
+        "figure.constrained_layout.h_pad": 0.0,
+        "figure.constrained_layout.wspace": 0.0,
+        "figure.constrained_layout.hspace": 0.0,
     }
 
     if usetex:
         rc.update({
             "text.usetex": True,
-            "font.serif": [],  # empty = LaTeX default (Times in A&A)
+            #"font.serif": [],  # empty = LaTeX default (Times in A&A)
+            "font.family": "serif",
+            "text.latex.preamble": r"\usepackage{newtxtext,newtxmath}", # \usepackage{times}
         })
     else:
         rc.update({
@@ -1010,6 +1049,6 @@ def set_aaasize(width='column', fraction=1, aspect=None, usetex=True):
             "font.serif": ["Times New Roman", "Times"],
         })
 
-    plt.rcParams.update(rc)
+    #plt.rcParams.update(rc)
 
     return (fig_width_in, fig_height_in), rc
