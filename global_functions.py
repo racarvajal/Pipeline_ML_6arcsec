@@ -983,7 +983,7 @@ def set_aaasize(width='column', fraction=1, aspect=None, usetex=True):
         "axes.labelsize": 11 * scale,
         "axes.titlesize": 11 * scale,
         "axes.linewidth": 1.1 * scale,
-        "axes.axisbelow": True,
+        "axes.axisbelow": 'line',
 
         "xtick.labelsize": 11 * scale,
         "ytick.labelsize": 11 * scale,
