@@ -980,7 +980,7 @@ def set_aaasize(width='column', fraction=1, aspect=None, usetex=True):
         "font.family": "serif",
         "font.size": 11 * scale,
 
-        "figure.labelsize": 12 * scale,
+        #"figure.labelsize": 12 * scale,
         "figure.titlesize": 12 * scale,
 
         "axes.labelsize": 11 * scale,
@@ -1042,9 +1042,8 @@ def set_aaasize(width='column', fraction=1, aspect=None, usetex=True):
     if usetex:
         rc.update({
             "text.usetex": True,
-            #"font.serif": [],  # empty = LaTeX default (Times in A&A)
             "font.family": "serif",
-            "text.latex.preamble": r"\usepackage{newtxtext,newtxmath}",
+            "text.latex.preamble": r"\usepackage{mathptmx}", #r"\usepackage{newtxtext,newtxmath}",
         })
     else:
         rc.update({
