@@ -971,9 +971,13 @@ def set_aaasize(width='column', fraction=1, aspect=None, usetex=True):
     fig_height_in = fig_width_in * aspect
 
     # scale           = fraction ** 0.8  # sublinear scaling looks nicer for fonts
-    reference_width = 3.5
+    reference_width = 249.45 * inches_per_pt # one column
     scale           = fig_width_in / reference_width
     scale           = max(0.7, min(scale, 1.6))  # avoids too large sizes
+    #scale           = scale ** 0.75 if fig_width_in < 2.5 else scale  # Boost for halfcolumn/tiny plots only
+    if fig_width_in < 2.5: # Smaller than a column
+        boost = 0.70  # ~10pt; tweak ±0.05
+        scale = (1 - boost) * scale + boost * 1.0
 
     # Apply A&A style
     rc = {
