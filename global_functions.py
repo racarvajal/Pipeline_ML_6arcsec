@@ -1053,3 +1053,61 @@ def set_aaasize(width='column', fraction=1, aspect=None, usetex=True):
         })
 
     return (fig_width_in, fig_height_in), rc
+
+def binned_median_and_scatter(x, y, nbins=15, p_lo=16, p_hi=84, scale='linear'):
+    x = np.asarray(x)
+    y = np.asarray(y)
+    m = np.isfinite(x) & np.isfinite(y)
+    x = x[m]
+    y = y[m]
+
+    if x.size == 0:
+        raise ValueError("Empty x after NaN filtering.")
+
+    x_min, x_max    = np.min(x), np.max(x)
+
+    if scale == 'log':
+        if x_min <= 0:
+            raise ValueError("Log binning requires x > 0.")
+        bins        = np.logspace(np.log10(x_min), np.log10(x_max), nbins + 1)
+        bin_centers = np.sqrt(bins[1:] * bins[:-1])  # geometric mean
+    else:
+        bins        = np.linspace(x_min, x_max, nbins + 1)
+        bin_centers = 0.5 * (bins[1:] + bins[:-1])
+
+    # assign each point to a bin index in [0, nbins - 1]
+    idx    = np.digitize(x, bins) - 1
+    valid  = (idx >= 0) & (idx < nbins)
+    x      = x[valid]
+    y      = y[valid]
+    idx    = idx[valid]
+
+    if x.size == 0:
+        return bin_centers, np.full(nbins, np.nan), np.full(nbins, np.nan), np.full(nbins, np.nan)
+
+    # sort by bin index (each bin becomes a contiguous block)
+    order  = np.argsort(idx)
+    idx    = idx[order]
+    x      = x[order]
+    y      = y[order]
+
+    # find bin boundaries in the sorted array
+    change = np.flatnonzero(np.diff(idx)) + 1
+    starts = np.concatenate(([0], change))
+    ends   = np.concatenate((change, [len(idx)]))
+
+    med    = np.full(nbins, np.nan)
+    lo_p   = np.full(nbins, np.nan)
+    hi_p   = np.full(nbins, np.nan)
+
+    # loop over bins only (fast; nbins ≪ N)
+    for s, e in zip(starts, ends):
+        b       = idx[s]  # bin id
+        ys      = y[s:e]
+        if ys.size == 0:
+            continue
+        med[b]  = np.nanmedian(ys)
+        lo_p[b] = np.nanpercentile(ys, p_lo)
+        hi_p[b] = np.nanpercentile(ys, p_hi)
+
+    return bin_centers, med, lo_p, hi_p
